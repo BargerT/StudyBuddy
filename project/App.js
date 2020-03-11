@@ -12,6 +12,7 @@ import TimeToStudy from "./screens/TimeToStudy";
 import TimerScreen from "./screens/TimerScreen";
 import CreateNewEvent from "./screens/CreateNewEvent";
 import CalendarDisplay from "./screens/CalendarDisplay";
+import * as Calendar from 'expo-calendar';
 
 const Stack = createStackNavigator();
 
@@ -28,6 +29,11 @@ export default function App(props) {
           'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf'),
           'rock-salt': require('./assets/fonts/RockSalt-Regular.ttf'),
         });
+
+        const {status} = await Calendar.requestCalendarPermissionsAsync();
+        if (status === 'granted') {
+          console.log("Permission granted!")
+        }
       } catch (e) {
         // We might want to provide this error information to an error reporting service
         console.warn(e);

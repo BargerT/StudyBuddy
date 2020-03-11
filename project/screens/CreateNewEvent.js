@@ -13,6 +13,14 @@ import {
 
 export default class CreateNewEvent extends Component {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            subject: '',
+            task: '',
+        }
+    }
+
     render() {
         const navigation = this.props.navigation;
         return (
@@ -26,14 +34,22 @@ export default class CreateNewEvent extends Component {
                     <View>
                         <Text style={styles.aboveText}>For</Text>
                         <TextInput style={styles.textInputBox}
-                            placeholder="Subject" />
+                            placeholder="Subject"
+                            value={this.state.subject}
+                            onChangeText = {(subject) => this.setState({subject})}
+                        />
                         <Text style={styles.aboveText}>I have</Text>
                         <TextInput style={styles.textInputBox}
                             placeholder="Task"
+                            value={this.state.task}
+                            onChangeText = {(task) => this.setState({task})}
                         />
                         <Text style={styles.leftText}>On</Text>
                         <TouchableOpacity height={120}
-                            onPress={() => navigation.navigate('CalendarDisplay')}>
+                            onPress={() => navigation.navigate('CalendarDisplay',{
+                                subject: this.state.subject,
+                                task: this.state.task,
+                            })}>
                             <Image style={styles.calendarIcon} source={require("../assets/images/calendarIcon.png")}/>
 
                         </TouchableOpacity>
@@ -94,17 +110,17 @@ const styles = StyleSheet.create({
     leftText: {
         fontSize: 30,
         color: '#000',
-        marginLeft: 2.7 * Math.round((Dimensions.get('window').width - (Dimensions.get('window').width/1.5)) /2) + 15,
+        marginLeft: 2.5 * Math.round((Dimensions.get('window').width - (Dimensions.get('window').width/1.5)) /2) + 15,
         marginTop: 40,
     },
     calendarIcon: {
-        position: 'absolute',
+        //position: 'absolute',
         alignItems: 'center',
         justifyContent: 'center',
         bottom: -40,
         height: 120,
         width: 120,
-        marginLeft: Math.round((Dimensions.get('window').width - (Dimensions.get('window').width/2.42))),
+        marginLeft: Math.round((Dimensions.get('window').width - (Dimensions.get('window').width/1.6))),
     },
     addButton: {
         justifyContent: 'center',

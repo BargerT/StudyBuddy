@@ -32,7 +32,9 @@ export default class TimeToStudy extends Component {
                 <View style={styles.buttonContainer}>
                   <View>
                       <View style={styles.textInputBox}>
-                        <TextInput style={styles.textInputBoxText} placeholder="Location" />
+                        <TextInput style={styles.textInputBoxText} placeholder="Location"
+
+                        />
                       </View>
                       <View style={styles.numericInputBox}>
                             <NumericInput

@@ -1,28 +1,86 @@
 import React, {Component} from 'react'
 import 'react-native-gesture-handler';
-import {Dimensions, ImageBackground, Platform, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Alert, Dimensions, ImageBackground, Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
+import * as Calendar from "expo-calendar";
+import Constants from 'expo-constants'
 
 export default class CalendarDisplay extends Component{
 
     constructor(props) {
         super(props);
         this.state = {
+            subject: this.props.route.params.subject,
+            allDay: true,
             selectedStartDate: null,
+            task: this.props.route.params.task,
+            calendarId: '',
         };
+
         this.onDateChange = this.onDateChange.bind(this);
     }
 
     onDateChange(date) {
-        this.setState({
-            selectedStartDate: date,
-        });
+        Alert.alert('Confirm Date', date.format('DD-MM-YYYY'), [
+            {text: 'Cancel', onPress: () => this.setState({selectedStartDate: null})},
+            {text: 'Ok', onPress: () => this.createEvent(date)},
+        ], {cancelable: false});
+
     }
 
+    getDefaultCalSrc = async () => {
+        const calendars = await Calendar.getCalendarsAsync();
+        const defaultCalendars = calendars.filter(each => each.source.name === 'Default');
+        return defaultCalendars[0].source
+    };
+
+    createCal = async () => {
+
+        const defaultCalendarSource =
+            (Platform.OS) === 'ios'
+                ? await this.getDefaultCalSrc()
+                : {isLocalAccount: true, name: 'Study Buddy'};
+
+        const newCalendarID = await Calendar.createCalendarAsync({
+            title: 'Study Buddy',
+            color: 'blue',
+            entityType: Calendar.EntityTypes.EVENT,
+            sourceId: defaultCalendarSource.id,
+            source: defaultCalendarSource,
+            name: 'internalCalendarName',
+            ownerAccount: 'personal',
+            accessLevel: Calendar.CalendarAccessLevel.OWNER,
+        }).catch(err => console.log(err));
+
+        console.log(`new CalId: ${newCalendarID}`);
+
+        this.setState({calendarId: newCalendarID})
+    };
+
+    createEvent = async (date) => {
+        const {navigation} = this.props;
+        this.setState({selectedStartDate: date});
+        const eventConfig = {
+            title: `${this.state.subject}: ${this.state.task}`,
+            startDate: date,
+            endDate: date,
+            location: '',
+            allDay: true,
+            url: '',
+            notes: '',
+        };
+
+        this.createCal().then( r =>
+            Calendar.createEventAsync(this.state.calendarId, eventConfig)
+        );
+
+
+        navigation.navigate('OverviewScreen')
+    };
+
     render() {
-        const navigation = this.props.navigation;
-        const { selectedStartDate } = this.state;
-        const startDate = selectedStartDate ? selectedStartDate.toString() : '';
+        const {navigation} = this.props;
+
         return(
             <View style={styles.Container}>
                 <View style={styles.titleCircle}>
@@ -42,9 +100,6 @@ export default class CalendarDisplay extends Component{
                         onDateChange={this.onDateChange}
                     />
 
-                    <View>
-                        <Text>SELECTED DATE:{ startDate }</Text>
-                    </View>
                 </View>
 
                 <TouchableOpacity
@@ -56,19 +111,6 @@ export default class CalendarDisplay extends Component{
                 </TouchableOpacity>
             </View>
         );
-
-        /*
-        function calendar(){
-            if(RNCalendarEvents.authorizationStatus()){
-
-            }
-            else{
-                RNCalendarEvents.authorizeEventStore();
-            }
-            RNCalendarEvents.findCalendars()
-            RNCalendarEvents.saveEvent(title, details);
-        }
-        */
     }
 
 
