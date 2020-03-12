@@ -36,7 +36,9 @@ export default class CalendarDisplay extends Component{
             const defaultCalendars = calendars.filter(each => {
                 calIDs.push(each.id);
             });
-            this.setState({events: Calendar.getEventsAsync(calIDs, date, date)})
+            let events = await Calendar.getEventsAsync(calIDs, date, date+1);
+
+            this.setState({events: events});
         }
     }
 
@@ -132,6 +134,7 @@ export default class CalendarDisplay extends Component{
                                 <Text> {this.state.selectedStartDate ? `Event: ${item.title}` : ''} </Text>
                             </View>
                         )}/>
+
                 </View>
 
                 <TouchableOpacity
