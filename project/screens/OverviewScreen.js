@@ -27,7 +27,7 @@ export default class OverviewScreen extends Component{
                   </TouchableOpacity>
                   <TouchableOpacity
                       style={styles.Button}
-                      onPress={() => navigation.navigate('CalendarDisplay')}
+                      onPress={() => navigation.navigate('CalendarDisplay', {newEvent: false})}
                       underlayColor='fff'>
                       <Image style={styles.calendarIcon} source={require("../assets/images/calendarIcon.png")}/>
 

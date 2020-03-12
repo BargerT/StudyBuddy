@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import 'react-native-gesture-handler';
-import {Alert, Dimensions, ImageBackground, Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Alert, Dimensions, ImageBackground, Platform, StyleSheet, Text, TouchableOpacity, View, FlatList} from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
 import * as Calendar from "expo-calendar";
 import Constants from 'expo-constants'
@@ -10,22 +10,34 @@ export default class CalendarDisplay extends Component{
     constructor(props) {
         super(props);
         this.state = {
-            subject: this.props.route.params.subject,
+            subject: '',
             allDay: true,
             selectedStartDate: null,
-            task: this.props.route.params.task,
+            task: '',
             calendarId: '',
+            eventToDisplay: '',
+            newEvent: this.props.route.params.newEvent,
         };
 
         this.onDateChange = this.onDateChange.bind(this);
     }
 
-    onDateChange(date) {
-        Alert.alert('Confirm Date', date.format('DD-MM-YYYY'), [
-            {text: 'Cancel', onPress: () => this.setState({selectedStartDate: null})},
-            {text: 'Ok', onPress: () => this.createEvent(date)},
-        ], {cancelable: false});
+    async onDateChange(date) {
+        if (this.state.newEvent) {
+            Alert.alert('Confirm Date', date.format('DD-MM-YYYY'), [
+                {text: 'Cancel', onPress: () => this.setState({selectedStartDate: null})},
+                {text: 'Ok', onPress: () => this.createEvent(date)},
+            ], {cancelable: false});
+        } else {
+            this.setState({selectedStartDate: date});
 
+            const calendars = await Calendar.getCalendarsAsync();
+            const calIDs = [];
+            const defaultCalendars = calendars.filter(each => {
+                calIDs.push(each.id);
+            });
+            this.setState({events: Calendar.getEventsAsync(calIDs, date, date)})
+        }
     }
 
     getDefaultCalSrc = async () => {
@@ -58,7 +70,9 @@ export default class CalendarDisplay extends Component{
     };
 
     createEvent = async (date) => {
-        const {navigation} = this.props;
+        this.setState({subject: this.props.route.params.subject});
+        this.setState({task: this.props.route.params.task});
+
         this.setState({selectedStartDate: date});
         const eventConfig = {
             title: `${this.state.subject}: ${this.state.task}`,
@@ -73,13 +87,18 @@ export default class CalendarDisplay extends Component{
         this.createCal().then( r =>
             Calendar.createEventAsync(this.state.calendarId, eventConfig)
         );
-
-
-        navigation.navigate('OverviewScreen')
+        const calendars = await Calendar.getCalendarsAsync();
+        const calIDs = [];
+        const defaultCalendars = calendars.filter(each => {
+            calIDs.push(each.id);
+        });
+        this.setState({events: Calendar.getEventsAsync(calIDs, eventConfig.startDate, eventConfig.endDate)})
     };
 
     render() {
         const {navigation} = this.props;
+        const selectedStartDate = this.state.selectedStartDate;
+        const datePrint = selectedStartDate ? selectedStartDate : '';
 
         return(
             <View style={styles.Container}>
@@ -100,6 +119,19 @@ export default class CalendarDisplay extends Component{
                         onDateChange={this.onDateChange}
                     />
 
+                </View>
+
+                <View>
+                    <Text> {!this.state.newEvent && this.state.selectedStartDate ? `Date: ${datePrint.format('DD-MM-YYYY')}` : 'Select a date'} </Text>
+
+                    <FlatList
+                        keyExtractor={(item) => item.name}
+                        data={this.state.events}
+                        renderItem={({ item }) => (
+                            <View>
+                                <Text> {this.state.selectedStartDate ? `Event: ${item.title}` : ''} </Text>
+                            </View>
+                        )}/>
                 </View>
 
                 <TouchableOpacity

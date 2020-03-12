@@ -49,6 +49,7 @@ export default class CreateNewEvent extends Component {
                             onPress={() => navigation.navigate('CalendarDisplay',{
                                 subject: this.state.subject,
                                 task: this.state.task,
+                                newEvent: true,
                             })}>
                             <Image style={styles.calendarIcon} source={require("../assets/images/calendarIcon.png")}/>
 
