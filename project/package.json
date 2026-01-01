@@ -20,7 +20,7 @@
     "@react-navigation/web": "~1.0.0-alpha.9",
     "expo": "~36.0.0",
     "expo-asset": "~8.0.0",
-    "expo-cli": "^3.13.1",
+    "expo-cli": "^3.28.6",
     "expo-constants": "~8.0.0",
     "expo-font": "~8.0.0",
     "expo-web-browser": "~8.0.0",
@@ -45,7 +45,7 @@
     "@babel/core": "^7.0.0",
     "babel-preset-expo": "~8.0.0",
     "expo-calendar": "^8.0.0",
-    "jest-expo": "~36.0.1",
+    "jest-expo": "~54.0.16",
     "react-navigation": "^4.2.2",
     "tcomb-form-native": "^0.6.20"
   },
